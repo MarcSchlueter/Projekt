@@ -1,19 +1,14 @@
 ﻿using De.HsFlensburg.ClientApp051.Business.Model.BusinessObjects;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace De.HsFlensburg.ClientApp051.Services.SerializationService
 {
     public class ModelFileHandler
     {
-        public ClientCollection ReadModelFromFile(string path)
+        public BookManager ReadModelFromFile(string path)
         {
             IFormatter formatter = new BinaryFormatter();
             Stream streamLoad = new FileStream(
@@ -21,15 +16,22 @@ namespace De.HsFlensburg.ClientApp051.Services.SerializationService
                 FileMode.Open,
                 FileAccess.Read,
                 FileShare.Read);
-            var loadedCollection =
-                (ClientCollection)formatter.Deserialize(streamLoad);
+            var loadedManager =
+                (BookManager)formatter.Deserialize(streamLoad);
             streamLoad.Close();
-            return loadedCollection;
+            return loadedManager;
         }
+
         public void WriteModelToFile(
-            string path, 
-            ClientCollection model)
+            string path,
+            BookManager model)
         {
+            string directory = Path.GetDirectoryName(path);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
             IFormatter formatter = new BinaryFormatter();
             Stream stream = new FileStream(
                 path,

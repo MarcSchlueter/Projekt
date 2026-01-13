@@ -41,8 +41,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BusinessObjects\Client.cs" />
-    <Compile Include="BusinessObjects\ClientCollection.cs" />
+    <Compile Include="BusinessObjects\Book.cs" />
+    <Compile Include="BusinessObjects\BookCollection.cs" />
+    <Compile Include="BusinessObjects\BookManager.cs" />
+    <Compile Include="BusinessObjects\BookOfTheDaySelection.cs" />
+    <Compile Include="BusinessObjects\BookSearch.cs" />
+    <Compile Include="BusinessObjects\DailyRanking.cs" />
+    <Compile Include="BusinessObjects\DownloadRecord.cs" />
+    <Compile Include="BusinessObjects\RankingEntry.cs" />
+    <Compile Include="BusinessObjects\Rating.cs" />
+    <Compile Include="BusinessObjects\UploadRecord.cs" />
+    <Compile Include="BusinessObjects\User.cs" />
+    <Compile Include="BusinessObjects\UserCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

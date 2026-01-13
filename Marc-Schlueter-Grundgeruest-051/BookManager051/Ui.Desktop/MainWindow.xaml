@@ -4,63 +4,102 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:De.HsFlensburg.ClientApp051.Ui.Desktop"
-        xmlns:viewModel="clr-namespace:De.HsFlensburg.ClientApp051.Logic.Ui.Wrapper;assembly=Logic.Ui"
-        xmlns:viewModels="clr-namespace:De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels;assembly=Logic.Ui"
         mc:Ignorable="d"
-        Title="MainWindow" Height="120" Width="500">
-    <!--<Window.Resources>
-        <viewModels:MainWindowViewModel
-            x:Key="myViewModel">
-        </viewModels:MainWindowViewModel>
-    </Window.Resources>-->
+        Title="BookManager Test" Height="600" Width="1100">
     <Window.DataContext>
         <Binding Source="{StaticResource ViewModelLocator}"
-                 Path="TheMainWindowViewModel"></Binding>
+                 Path="TheMainWindowViewModel"/>
     </Window.DataContext>
-    <Window.IsEnabled>
-        <Binding Source="{StaticResource MessageListener}" Path="BindableProperty">
-        </Binding>
-    </Window.IsEnabled>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <UniformGrid Grid.Column="0" Columns="2">
-            <Label VerticalAlignment="Center"
-               HorizontalAlignment="Right">
-                Identifier
-            </Label>
-            <TextBox VerticalAlignment="Center" 
-                     Text="{Binding ElementName=myDataGrid,
-                Path=SelectedItem.Id}">
-            </TextBox>
-            <Label VerticalAlignment="Center"
-               HorizontalAlignment="Right">
-                Name
-            </Label>
-            <TextBox VerticalAlignment="Center" 
-                     Text="{Binding ElementName=myDataGrid,
-                Path=SelectedItem.Name}">
-            </TextBox>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <Button Command="{Binding RenameValueInModelCommand}">
-                Rename first Item
+        <WrapPanel Grid.Row="0" Margin="0,0,0,10">
+            <Button Command="{Binding LoadDemoDataCommand}" 
+                    Width="120" Height="30" Margin="5">
+                Load Demo Data
             </Button>
-            <Button Command="{Binding OpenNewClientWindowCommand}">
-                OpenClientWindow
+            <Button Command="{Binding AddBookCommand}" 
+                    Width="120" Height="30" Margin="5">
+                Add Test Book
             </Button>
-            <Button Command="{Binding SaveCommand}">
+            <Button Command="{Binding AddUserCommand}" 
+                    Width="120" Height="30" Margin="5">
+                Add Test User
+            </Button>
+            <Button Command="{Binding AddRatingCommand}" 
+                    Width="120" Height="30" Margin="5"
+                    Background="LightBlue">
+                Add Rating
+            </Button>
+            <Button Command="{Binding BuildRankingCommand}" 
+                    Width="120" Height="30" Margin="5">
+                Build Ranking
+            </Button>
+            <Button Command="{Binding SaveCommand}" 
+                    Width="120" Height="30" Margin="5">
                 Save
             </Button>
-            <Button Command="{Binding LoadCommand}">
+            <Button Command="{Binding LoadCommand}" 
+                    Width="120" Height="30" Margin="5">
                 Load
             </Button>
-        </UniformGrid>
-        <DataGrid Grid.Column="1" 
-                  Name="myDataGrid"
-                  ItemsSource="{Binding Path=MyList}"
-                  >            
-        </DataGrid>
+        </WrapPanel>
+
+        <GroupBox Grid.Row="1" Header="Books" Margin="0,0,0,5">
+            <DataGrid Name="booksDataGrid"
+                      ItemsSource="{Binding Books}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" 
+                                        Binding="{Binding Id}" 
+                                        Width="80"/>
+                    <DataGridTextColumn Header="Title" 
+                                        Binding="{Binding Title}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Author" 
+                                        Binding="{Binding Author}" 
+                                        Width="150"/>
+                    <DataGridTextColumn Header="Pages" 
+                                        Binding="{Binding PageCount}" 
+                                        Width="80"/>
+                    <DataGridTextColumn Header="Category" 
+                                        Binding="{Binding Category}" 
+                                        Width="100"/>
+                    <DataGridTextColumn Header="Avg Rating" 
+                                        Binding="{Binding AverageRating}" 
+                                        Width="100"/>
+                    <DataGridCheckBoxColumn Header="Highlighted" 
+                                            Binding="{Binding IsHighlighted}" 
+                                            Width="100"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="2" Header="Users" Margin="0,5,0,0">
+            <DataGrid Name="usersDataGrid"
+                      ItemsSource="{Binding Users}"
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" 
+                                        Binding="{Binding Id}" 
+                                        Width="80"/>
+                    <DataGridTextColumn Header="Username" 
+                                        Binding="{Binding Username}" 
+                                        Width="150"/>
+                    <DataGridTextColumn Header="Display Name" 
+                                        Binding="{Binding DisplayName}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Email" 
+                                        Binding="{Binding Email}" 
+                                        Width="200"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
     </Grid>
 </Window>
