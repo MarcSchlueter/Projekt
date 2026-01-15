@@ -11,7 +11,8 @@ namespace De.HsFlensburg.ClientApp051.Services.MessageBus
     {
         private static volatile ServiceBus instance;
         private static object syncRoot = new object();
-        private Dictionary<Type, List<WeakReferenceAction>> references = new Dictionary<Type, List<WeakReferenceAction>>();
+        private Dictionary<Type, List<WeakReferenceAction>> references =
+            new Dictionary<Type, List<WeakReferenceAction>>();
 
         #region Singleton
         private ServiceBus() { }
@@ -37,28 +38,49 @@ namespace De.HsFlensburg.ClientApp051.Services.MessageBus
         {
             Type messageType = typeof(TNotification);
             if (!references.ContainsKey(messageType))
-                references.Add(messageType, new List<WeakReferenceAction>());
-            WeakReferenceAction actionReference = new WeakReferenceAction(listener, action);
+                references.Add(messageType,
+                    new List<WeakReferenceAction>());
+            WeakReferenceAction actionReference =
+                new WeakReferenceAction(listener, action);
             references[messageType].Add(actionReference);
         }
 
-        public void Register<TNotification>(object listener, Action<TNotification> action)
+        public void Register<TNotification>(object listener,
+                                           Action<TNotification> action)
         {
             Type messageType = typeof(TNotification);
             if (!references.ContainsKey(messageType))
-                references.Add(messageType, new List<WeakReferenceAction>());
-            WeakReferenceAction actionReference = new WeakReferencActionWithParameter<TNotification>(listener, action);
+                references.Add(messageType,
+                    new List<WeakReferenceAction>());
+            WeakReferenceAction actionReference =
+                new WeakReferencActionWithParameter<TNotification>(
+                    listener, action);
             references[messageType].Add(actionReference);
         }
 
         public void Send<TNotification>(TNotification notification)
         {
             Type messageType = typeof(TNotification);
-            List<WeakReferenceAction> weakReferenceActions = references[messageType];
+            System.Diagnostics.Debug.WriteLine(
+                $"=== ServiceBus: Sending {messageType.Name} ===");
+
+            if (!references.ContainsKey(messageType))
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"=== ServiceBus: WARNING - {messageType.Name} NOT REGISTERED ===");
+                return;
+            }
+
+            List<WeakReferenceAction> weakReferenceActions =
+                references[messageType];
+            System.Diagnostics.Debug.WriteLine(
+                $"=== ServiceBus: Found {weakReferenceActions.Count} listeners ===");
+
             foreach (WeakReferenceAction wra in weakReferenceActions)
             {
                 if (wra is WeakReferencActionWithParameter<TNotification>)
-                    ((WeakReferencActionWithParameter<TNotification>)wra).Execute(notification);
+                    ((WeakReferencActionWithParameter<TNotification>)wra)
+                        .Execute(notification);
                 else
                     wra.Execute();
             }
@@ -72,7 +94,8 @@ namespace De.HsFlensburg.ClientApp051.Services.MessageBus
                 Monitor.Enter(references, ref isLocked);
                 foreach (Type targetType in references.Keys)
                 {
-                    foreach (WeakReferenceAction wra in references[targetType])
+                    foreach (WeakReferenceAction wra in
+                            references[targetType])
                     {
                         if (wra.Target == listener)
                             wra.Unload();
@@ -84,6 +107,6 @@ namespace De.HsFlensburg.ClientApp051.Services.MessageBus
                 if (isLocked)
                     Monitor.Exit(references);
             }
-        } 
+        }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
@@ -14,6 +15,7 @@ namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
         private Book selectedBook;
         private int selectedScore;
         private string comment;
+        private string validationMessage;
 
         public List<User> AvailableUsers { get; set; }
         public List<Book> AvailableBooks { get; set; }
@@ -26,7 +28,7 @@ namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
             {
                 selectedUser = value;
                 OnPropertyChanged(nameof(SelectedUser));
-                OnPropertyChanged(nameof(CanSubmit));
+                UpdateValidationMessage();
             }
         }
 
@@ -37,7 +39,7 @@ namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
             {
                 selectedBook = value;
                 OnPropertyChanged(nameof(SelectedBook));
-                OnPropertyChanged(nameof(CanSubmit));
+                UpdateValidationMessage();
             }
         }
 
@@ -48,7 +50,7 @@ namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
             {
                 selectedScore = value;
                 OnPropertyChanged(nameof(SelectedScore));
-                OnPropertyChanged(nameof(CanSubmit));
+                UpdateValidationMessage();
             }
         }
 
@@ -62,13 +64,13 @@ namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
             }
         }
 
-        public bool CanSubmit
+        public string ValidationMessage
         {
-            get
+            get { return validationMessage; }
+            set
             {
-                return SelectedUser != null &&
-                       SelectedBook != null &&
-                       SelectedScore > 0;
+                validationMessage = value;
+                OnPropertyChanged(nameof(ValidationMessage));
             }
         }
 
@@ -84,16 +86,47 @@ namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
             AvailableScores = new List<int> { 1, 2, 3, 4, 5 };
 
             comment = string.Empty;
-            selectedScore = 0;
+            selectedScore = 3;
+            validationMessage = string.Empty;
 
-            SubmitCommand = new RelayCommand(SubmitRating,
-                                            () => CanSubmit);
+            SubmitCommand = new RelayCommand(SubmitRating);
+
+            UpdateValidationMessage();
+        }
+
+        private void UpdateValidationMessage()
+        {
+            if (SelectedUser == null)
+            {
+                ValidationMessage = "Bitte waehlen Sie einen Benutzer aus.";
+            }
+            else if (SelectedBook == null)
+            {
+                ValidationMessage = "Bitte waehlen Sie ein Buch aus.";
+            }
+            else if (SelectedScore <= 0)
+            {
+                ValidationMessage = "Bitte waehlen Sie eine Bewertung aus.";
+            }
+            else
+            {
+                ValidationMessage = string.Empty;
+            }
         }
 
         private void SubmitRating()
         {
-            if (!CanSubmit)
+            if (SelectedUser == null || SelectedBook == null ||
+                SelectedScore <= 0)
+            {
+                MessageBox.Show(
+                    "Bitte fuellen Sie alle Pflichtfelder aus:\n" +
+                    "- Benutzer\n- Buch\n- Bewertung (1-5)",
+                    "Unvollstaendige Eingabe",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
                 return;
+            }
 
             selectedUser.RateBook(bookManager, selectedBook,
                                 selectedScore, comment);

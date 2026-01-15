@@ -4,54 +4,63 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Add Rating" Height="350" Width="500"
+        Title="Add Rating" Height="400" Width="500"
         WindowStartupLocation="CenterOwner">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+	<Grid Margin="20">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,10">
-            <Label Content="Select User:" FontWeight="Bold"/>
-            <ComboBox ItemsSource="{Binding AvailableUsers}"
+		<StackPanel Grid.Row="0" Margin="0,0,0,10">
+			<Label Content="Select User:" FontWeight="Bold"/>
+			<ComboBox ItemsSource="{Binding AvailableUsers}"
                       SelectedItem="{Binding SelectedUser}"
                       DisplayMemberPath="DisplayName"
                       Height="30"/>
-        </StackPanel>
+		</StackPanel>
 
-        <StackPanel Grid.Row="1" Margin="0,0,0,10">
-            <Label Content="Select Book:" FontWeight="Bold"/>
-            <ComboBox ItemsSource="{Binding AvailableBooks}"
+		<StackPanel Grid.Row="1" Margin="0,0,0,10">
+			<Label Content="Select Book:" FontWeight="Bold"/>
+			<ComboBox ItemsSource="{Binding AvailableBooks}"
                       SelectedItem="{Binding SelectedBook}"
                       DisplayMemberPath="Title"
                       Height="30"/>
-        </StackPanel>
+		</StackPanel>
 
-        <StackPanel Grid.Row="2" Margin="0,0,0,10">
-            <Label Content="Score (1-5):" FontWeight="Bold"/>
-            <ComboBox ItemsSource="{Binding AvailableScores}"
+		<StackPanel Grid.Row="2" Margin="0,0,0,10">
+			<Label Content="Score (1-5):" FontWeight="Bold"/>
+			<ComboBox ItemsSource="{Binding AvailableScores}"
                       SelectedItem="{Binding SelectedScore}"
                       Height="30"/>
-        </StackPanel>
+		</StackPanel>
 
-        <StackPanel Grid.Row="3" Margin="0,0,0,10">
-            <Label Content="Comment:" FontWeight="Bold"/>
-            <TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"
+		<StackPanel Grid.Row="3" Margin="0,0,0,10">
+			<Label Content="Comment:" FontWeight="Bold"/>
+			<TextBox Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged}"
                      TextWrapping="Wrap"
                      AcceptsReturn="True"
                      VerticalScrollBarVisibility="Auto"
                      Height="80"/>
-        </StackPanel>
+		</StackPanel>
 
-        <Button Grid.Row="4" 
+		<TextBlock Grid.Row="4"
+                   Text="{Binding ValidationMessage}"
+                   Foreground="Red"
+                   FontWeight="Bold"
+                   TextAlignment="Center"
+                   Margin="0,0,0,10"
+                   MinHeight="20"/>
+
+		<Button Grid.Row="5"
                 Content="Submit Rating"
                 Command="{Binding SubmitCommand}"
                 Height="35"
                 FontSize="14"
                 FontWeight="Bold"/>
-    </Grid>
+	</Grid>
 </Window>

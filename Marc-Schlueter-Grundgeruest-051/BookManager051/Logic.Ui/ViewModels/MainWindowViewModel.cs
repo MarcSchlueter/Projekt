@@ -3,12 +3,17 @@ using De.HsFlensburg.ClientApp051.Logic.Ui.MessageBusMessages;
 using De.HsFlensburg.ClientApp051.Logic.Ui.Wrapper;
 using De.HsFlensburg.ClientApp051.Services.MessageBus;
 using De.HsFlensburg.ClientApp051.Services.SerializationService;
+using Microsoft.Win32;
 using System;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
 {
-    public class MainWindowViewModel
+    public class MainWindowViewModel : INotifyPropertyChanged
     {
         private string pathForSerialization;
         private ModelFileHandler modelFileHandler;
@@ -24,6 +29,8 @@ namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
         public ICommand AddUserCommand { get; }
         public ICommand BuildRankingCommand { get; }
         public ICommand AddRatingCommand { get; }
+        public ICommand UploadBookCommand { get; }
+        public ICommand DownloadBookCommand { get; }
 
         public MainWindowViewModel()
         {
@@ -38,11 +45,20 @@ namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
             AddUserCommand = new RelayCommand(AddTestUser);
             BuildRankingCommand = new RelayCommand(BuildRanking);
             AddRatingCommand = new RelayCommand(OpenAddRatingWindow);
+            UploadBookCommand = new RelayCommand(OpenUploadBookWindow);
+            DownloadBookCommand = new RelayCommand<BookViewModel>(
+                DownloadBook);
 
             modelFileHandler = new ModelFileHandler();
             pathForSerialization = Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments) +
                 "\\BookManagerSerialization\\BookManager.bm";
+
+            ServiceBus.Instance.Register<RatingAddedMessage>(
+                this, OnRatingAdded);
+
+            ServiceBus.Instance.Register<BookUploadedMessage>(
+                this, OnBookUploaded);
 
             LoadDemoData();
         }
@@ -113,6 +129,100 @@ namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
                 new OpenAddRatingWindowMessage(BookManager));
         }
 
+        private void OpenUploadBookWindow()
+        {
+            ServiceBus.Instance.Send(
+                new OpenUploadBookWindowMessage(BookManager));
+        }
+
+        private void DownloadBook(BookViewModel bookViewModel)
+        {
+            if (bookViewModel == null)
+                return;
+
+            if (BookManager.Users.Count == 0)
+            {
+                MessageBox.Show(
+                    "Kein Benutzer verfuegbar. Bitte erstellen Sie zuerst einen Benutzer.",
+                    "Kein Benutzer",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            User currentUser = BookManager.Users.First();
+
+            UploadRecord uploadRecord = BookManager.Uploads.FirstOrDefault(
+                record => record.Book.Id == bookViewModel.Id);
+
+            if (uploadRecord == null || string.IsNullOrEmpty(uploadRecord.StoragePath))
+            {
+                MessageBox.Show(
+                    "Dieses Buch hat keine hochgeladene Datei.\n" +
+                    "Nur hochgeladene Buecher koennen heruntergeladen werden.",
+                    "Keine Datei verfuegbar",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!File.Exists(uploadRecord.StoragePath))
+            {
+                MessageBox.Show(
+                    $"Die Datei wurde nicht gefunden:\n{uploadRecord.StoragePath}\n\n" +
+                    "Moeglicherweise wurde sie geloescht oder verschoben.",
+                    "Datei nicht gefunden",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.FileName = bookViewModel.Title + ".pdf";
+            saveFileDialog.Filter = "PDF Dateien (*.pdf)|*.pdf";
+            saveFileDialog.Title = "Buch herunterladen";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    File.Copy(uploadRecord.StoragePath, saveFileDialog.FileName, true);
+
+                    File.SetCreationTime(saveFileDialog.FileName, DateTime.Now);
+                    File.SetLastWriteTime(saveFileDialog.FileName, DateTime.Now);
+                    File.SetLastAccessTime(saveFileDialog.FileName, DateTime.Now);
+
+                    currentUser.DownloadBook(BookManager, bookViewModel.Model,
+                                           saveFileDialog.FileName);
+
+                    MessageBox.Show(
+                        $"Buch '{bookViewModel.Title}' erfolgreich heruntergeladen nach:\n" +
+                        saveFileDialog.FileName,
+                        "Download erfolgreich",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Fehler beim Download: {ex.Message}",
+                        "Download fehlgeschlagen",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void OnRatingAdded()
+        {
+            SyncCollectionsFromManager();
+        }
+
+        private void OnBookUploaded()
+        {
+            SyncCollectionsFromManager();
+        }
+
         private void SaveModel()
         {
             modelFileHandler.WriteModelToFile(
@@ -125,6 +235,14 @@ namespace De.HsFlensburg.ClientApp051.Logic.Ui.ViewModels
             BookManager = modelFileHandler.ReadModelFromFile(
                 pathForSerialization);
             SyncCollectionsFromManager();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this,
+                new PropertyChangedEventArgs(propertyName));
         }
     }
 }

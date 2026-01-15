@@ -5,11 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:De.HsFlensburg.ClientApp051.Ui.Desktop"
         mc:Ignorable="d"
-        Title="BookManager Test" Height="600" Width="1100">
+        Title="BookManager Test" Height="600" Width="1300">
     <Window.DataContext>
         <Binding Source="{StaticResource ViewModelLocator}"
                  Path="TheMainWindowViewModel"/>
     </Window.DataContext>
+
+    <Window.Tag>
+        <Binding Source="{StaticResource MessageListener}" 
+                 Path="BindableProperty"/>
+    </Window.Tag>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -22,6 +28,16 @@
                     Width="120" Height="30" Margin="5">
                 Load Demo Data
             </Button>
+            <Button Command="{Binding UploadBookCommand}" 
+                    Width="120" Height="30" Margin="5"
+                    Background="LightGreen">
+                Upload Book
+            </Button>
+            <Button Command="{Binding AddRatingCommand}" 
+                    Width="120" Height="30" Margin="5"
+                    Background="LightBlue">
+                Add Rating
+            </Button>
             <Button Command="{Binding AddBookCommand}" 
                     Width="120" Height="30" Margin="5">
                 Add Test Book
@@ -29,11 +45,6 @@
             <Button Command="{Binding AddUserCommand}" 
                     Width="120" Height="30" Margin="5">
                 Add Test User
-            </Button>
-            <Button Command="{Binding AddRatingCommand}" 
-                    Width="120" Height="30" Margin="5"
-                    Background="LightBlue">
-                Add Rating
             </Button>
             <Button Command="{Binding BuildRankingCommand}" 
                     Width="120" Height="30" Margin="5">
@@ -76,6 +87,19 @@
                     <DataGridCheckBoxColumn Header="Highlighted" 
                                             Binding="{Binding IsHighlighted}" 
                                             Width="100"/>
+                    <DataGridTemplateColumn Header="Actions" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Download"
+                                        Command="{Binding DataContext.DownloadBookCommand, 
+                                                 RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}"
+                                        Width="80"
+                                        Height="25"
+                                        Background="LightCyan"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>

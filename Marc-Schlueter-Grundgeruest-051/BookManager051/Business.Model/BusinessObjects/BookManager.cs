@@ -95,7 +95,7 @@ namespace De.HsFlensburg.ClientApp051.Business.Model.BusinessObjects
         {
             Rating rating = new Rating(user, book, score, comment,
                                       DateTime.UtcNow);
-            book.AddRating(rating);
+            book.AddOrUpdateRating(rating);
             return rating;
         }
 

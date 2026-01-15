@@ -101,14 +101,22 @@ namespace De.HsFlensburg.ClientApp051.Business.Model.BusinessObjects
             Ratings = new List<Rating>();
         }
 
-        public void AddRating(Rating rating)
+        public void AddOrUpdateRating(Rating newRating)
         {
-            if (rating == null)
+            if (newRating == null)
             {
-                throw new ArgumentNullException(nameof(rating));
+                throw new ArgumentNullException(nameof(newRating));
             }
 
-            Ratings.Add(rating);
+            Rating existingRating = Ratings.FirstOrDefault(
+                rating => rating.Reviewer.Id == newRating.Reviewer.Id);
+
+            if (existingRating != null)
+            {
+                Ratings.Remove(existingRating);
+            }
+
+            Ratings.Add(newRating);
             OnPropertyChanged(nameof(AverageRating));
         }
 
